@@ -1,5 +1,5 @@
 # QLScript_New
-
+本仓库不支持qinglong 2.10.2之后的qinglong直接拉库，以后支不支持，难说，不是不想，而是改成这样没法支持,升级了的自己想方法解决.我停留在2.9.9了.
 青龙拉库命令:
 
 	不包含sendNotify:
@@ -23,6 +23,8 @@
 	
 （4）使用Ninjia要注意Extra.sh中把 cp sendNotify.js /ql/scripts/sendNotify.js 这一句删除，不然每次重启容器sendNotify.js都会被覆盖.
   
+（5）如果用不同的通知类型分组，比如TG作为组1，企业微信作为组2，且之前已经设置过企业微信通知的参数QYWX_AM，请先将QYWX_AM置空（export QYWX_AM=""），再设置组2的企业微信参数QYWX_AM2（export QYWX_AM2="abcdef"）。否则原有的QYWX_AM参数仍在生效中，导致企业微信仍然接受到组1的通知.(来自Windstill的惨痛经历)
+
 # 2. 关于群组
 原通知配置变量加上数字，组成新的通知群组.通知脚本目前支援5组变量.
 
@@ -30,7 +32,7 @@
 	
 (PS:例子使用了企业微信的变量QYWX_AM,实际是所有推送变量后加数字都会有效.)
 
-# 3. jd_bean_change.js  
+# 3. jd_bean_change.js (已添加支持一对一推送)
 京东资产变动 + 白嫖榜 + 京东月资产变动,注意事项: 
 
 	如果你遇到TG Bark报错，那是因为报文过长，请使用分段通知功能.
@@ -52,9 +54,18 @@
 	    标题按照分组分别为 京东月资产变动 京东月资产变动#2 京东月资产变动#3 京东月资产变动#4	
 	    开启 :  export BEANCHANGE_ENABLEMONTH="true"  	
     
-    
-  
-# 4. jd_CheckCK.js  
+    (4) BEANCHANGE_ALLNOTIFY
+		设置推送置顶公告，&表示换行，公告会出现在资产通知中(包括一对一).
+		例子 :  export BEANCHANGE_ALLNOTIFY="ccwav 虽然头发块掉光了&可是还是很帅啊...&&不说了，我去哭会...."  
+		显示:
+		
+		【✨✨✨✨公告✨✨✨✨】
+		 ccwav 虽然头发块掉光了
+		 可是还是很帅啊...
+		 
+		 不说了，我去哭会.... 
+		 
+# 4. jd_CheckCK.js (已添加支持一对一推送)
 京东CK检测,不正常的自动禁用，正常的如果是禁用状态则自动启用.配合通知脚本CK触发使用.也可以直接task.
 兼容jd_bean_change的BEANCHANGE_USERGP2 BEANCHANGE_USERGP3 BEANCHANGE_USERGP4变量.
 变量列表:
@@ -68,6 +79,9 @@
 	分组通知的通知标题为 脚本名+"#"+分组数值
 	主要用于搭配通知脚本的分组通知使用.
   
+	2021-11-14增加CHECKCK_ALLNOTIFY设置温馨提示，&表示换行，推送时在内容末尾添加显示
+	一对一推送只有推送账户失效时才会添加.用法参考BEANCHANGE_ALLNOTIFY.
+	
   
 # 5. sendNotify.js
 发送通知脚本Pro.
@@ -122,17 +136,19 @@
     增加pushplus.hxtrip.com的推送加接口，貌似更稳定,注意这个和PUSHPLUS不是同一家.
     
 	(13) 用 WxPusher 进行一对一推送
+	详细教程有人写了，不知道是幸运还是不幸: https://www.kejiwanjia.com/jiaocheng/27909.html
 	填写变量 WP_APP_TOKEN_ONE,可在管理台查看: https://wxpusher.zjiecode.com/admin/main/app/appToken
 	手动建立CK_WxPusherUid.json,可以参考CKName_cache.json,只是nickName改成Uid，
 	每个用户的uid可在管理台查看: https://wxpusher.zjiecode.com/admin/main/wxuser/list
-	CK_WxPusherUid.json 内容:
+	另外: export WP_APP_ONE_TEXTSHOWREMARK="true"，启用一对一推送标题显示备注信息，默认不启用.
+	CK_WxPusherUid.json 内容(pt_pin 如果是汉字需要填写转码后的!):
 	[
 	  {
 		"pt_pin": "ccwav",
 		"Uid": "UID_AAAAAAAA"
 	  },
 	  {
-		"pt_pin": "ccwav2",
+		"pt_pin": "中文名",
 		"Uid": "BBBBBBBBBB"
 	  }
 	]
@@ -148,10 +164,11 @@
 	
 例子 : 有24个ck，则Part1 执行1~8,Part2 执行9~16，Part3 执行17以后剩下的所有ck.
 
-# 7. jd_priceProtect_Mod.js
-京东价格保护通知版,仅仅是保价成功加上了通知，改了执行时间,没有什么技术含量...
+# 7. jd_priceProtect_Mod.js  (已添加支持一对一推送)
 
-# 8. jd_big_winner_Mod.js
+京东价格保护一对一通知版,仅仅是保价成功加上了一对一通知，改了执行时间,没有什么技术含量...
+
+# 8. jd_big_winner_Mod.js  (已添加支持一对一推送)
 省钱大赢家之翻翻乐分组版本,兼容资产通知查询的分组变量BEANCHANGE_USERGP2 ~ BEANCHANGE_USERGP4
 
 标题为省钱大赢家之翻翻乐 省钱大赢家之翻翻乐#2 省钱大赢家之翻翻乐#3 省钱大赢家之翻翻乐#4
